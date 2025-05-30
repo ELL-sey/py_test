@@ -1,0 +1,19 @@
+stages:
+  - build
+
+build_images:
+  stage: build
+  image:  
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  script:
+    - mkdir /kaniko/.docker
+    - echo "{\"auth\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --cache -cache-repo $CI-REGISTRY_IMAGE --context $CI_PROJECT_DIR --dockerfile $CI_CI_PROJECT_DIR/Dockerfile --desination $IMAGE_NAME
+  tags:
+   - dev1
+
+  rules:
+   - if: '$CI_COMMIT_REF_NAME == "stage"'
+     variables:
+      IMAGE_NAME: "elipsey/$PROJECT_NAME:dev_$CI_COMMIT_SHA"
